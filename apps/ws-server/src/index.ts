@@ -14,6 +14,7 @@ let userCount: number = 0;
 let allSocket: User[] = [] 
 
 wss.on("connection", function connection(ws: WebSocket){ 
+    console.log("user connect successfully")
 
     ws.on("message", function(data: Buffer | string) { 
         try {
