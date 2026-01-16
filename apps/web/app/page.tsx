@@ -1,11 +1,9 @@
 "use client";
 import PopToggle from "@/components/custom/pop-toggle";
 import { useSocket } from "@/hooks/get-socket";
-import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { nanoid } from "nanoid";
-import { useEffect, useId, useRef, useState } from "react";
-
+import React, { useEffect, useRef, useState } from "react";
 const randomName: string[] = ["Alpaca", "Alpaca", "Pangolin", " Kakapo"];
 
 function generateUserName(value: number) {
@@ -16,11 +14,10 @@ function generateUserName(value: number) {
 }
 
 export default function Page() {
-  const { socket, connect } = useSocket("ws://localhost:8080");
-  const [message, setMessage] = useState(["hi"]);
-  const roomId = useRef<HTMLInputElement>(null);
+  const { socket } = useSocket("ws://localhost:8080");
+  const [message, setMessage] = useState([""]);
+  const roomIdRef = useRef<HTMLInputElement | null>(null)
   const [userId, setUserId] = useState<string | null>(null);
-  const [popUpSetting , setPopUpSetting] = useState(false);
 
   useEffect(() => {
     const storedId = localStorage.getItem("user_id");
@@ -60,20 +57,10 @@ export default function Page() {
     <div className="max-w-6xl flex items-center justify-center w-full mx-auto h-full min-h-screen">
          <div className="relative flex flex-col gap-5 border-gray-400/30 rounded-md p-6">
               <h1 className="text-xl"> <span className="bg-amber-600/90 px-2">{">"}</span> this chat never existed 👀 </h1>
-              <Input className="w-full rounded-md text-neutral-400" defaultValue={userId || "...."} type="text"></Input>
+              <Input disabled className="w-full rounded-md text-neutral-400" defaultValue={userId || "...."} type="text"></Input>
               <div className="flex gap-5 w-full justify-center">
-                  <Input ref={roomId} className="rounded-md" type="text" placeholder="Enter Id Here" ></Input>
-                  <Button onClick={() => {
-                    socket?.send(JSON.stringify({ 
-                      type:"join", 
-                      payload: { 
-                        name: useId,
-                        roomId: roomId.current?.value
-                      }
-                    }))
-                    setPopUpSetting(true)
-                  }}>{"{"}<span>Join</span>{"}"}</Button>
-                  <PopToggle on={popUpSetting} />
+                  <Input ref={roomIdRef} className="rounded-md" type="text" placeholder="Enter Id Here"></Input>
+                  <PopToggle socket={socket} userId={userId} roomIdRef={roomIdRef} />
               </div>
          </div>
     </div>
