@@ -32,7 +32,7 @@ const themeValues: ThemeValuesType[] = [
   }
 ]
 
-export default function PopToggle({socket , userId , roomIdRef}: {on?: boolean , userId: string | null , socket: WebSocket | null , roomIdRef: React.RefObject<HTMLInputElement | null>}) {
+export default function PopToggle({socket , userId , roomIdRef , disable}: {on?: boolean , userId: string | null , socket: WebSocket | null , roomIdRef: React.RefObject<HTMLInputElement | null> , disable?: boolean}) {
   const router = useRouter()
 
     if(userId == null){
@@ -44,7 +44,7 @@ export default function PopToggle({socket , userId , roomIdRef}: {on?: boolean ,
     return(
          <AlertDialog>
             <AlertDialogTrigger asChild>
-        <Button>Continue</Button>
+        <Button disabled={disable}>Continue</Button>
       </AlertDialogTrigger>
         <AlertDialogContent >
           <AlertDialogHeader>
@@ -66,7 +66,7 @@ export default function PopToggle({socket , userId , roomIdRef}: {on?: boolean ,
                     roomId: roomId
                   }
                 }))
-                router.push(`room${roomId}`)
+                router.push(`room/${roomId}`)
               }} >{"{"}<span>Join</span>{"}"}</Button>
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -119,3 +119,4 @@ function CustomToggle({themes}: {themes: ThemeValuesType[]}){
   })}
 </span>
 }
+

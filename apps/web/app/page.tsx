@@ -18,6 +18,7 @@ export default function Page() {
   const [message, setMessage] = useState([""]);
   const roomIdRef = useRef<HTMLInputElement | null>(null)
   const [userId, setUserId] = useState<string | null>(null);
+  const [isDisable , setIsDisable] = useState(false)
 
   useEffect(() => {
     const storedId = localStorage.getItem("user_id");
@@ -59,8 +60,10 @@ export default function Page() {
               <h1 className="text-xl"> <span className="bg-amber-600/90 px-2">{">"}</span> this chat never existed 👀 </h1>
               <Input disabled className="w-full rounded-md text-neutral-400" defaultValue={userId || "...."} type="text"></Input>
               <div className="flex gap-5 w-full justify-center">
-                  <Input ref={roomIdRef} className="rounded-md" type="text" placeholder="Enter Id Here"></Input>
-                  <PopToggle socket={socket} userId={userId} roomIdRef={roomIdRef} />
+                  <Input onChange={(e) => {
+                      setIsDisable(String(e.target.value).length > 0)
+                  }} ref={roomIdRef} className="rounded-md" type="text" placeholder="Enter Id Here"></Input>
+                  <PopToggle disable={!isDisable} socket={socket} userId={userId} roomIdRef={roomIdRef} />
               </div>
          </div>
     </div>
