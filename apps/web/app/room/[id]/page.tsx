@@ -1,11 +1,11 @@
 "use client"
 
+import { useStorage } from "@/hooks/get-StorageId";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { count } from "console";
-import { Copy, HandMetal, Send, Trash, X } from "lucide-react"
+import { Copy, Send, Trash, X } from "lucide-react"
 import Image from "next/image";
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface Message { 
     text: string, 
@@ -17,10 +17,18 @@ interface Message {
 export default function Page(){ 
     const [input , setInput] = useState('');
     const [isActive , setIsActive] = useState(true);
-    const [chatImage , setChatImage] = useState(true);
     const [messages , setMessage] = useState<Message[]>([]);
-
+    const {localId} = useStorage();
     const [image ,setImage] = useState<string | null>(null)
+    const messageRef = useRef<HTMLDivElement | null>(null);
+
+    const scrollToBottom = () => {
+        messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages])
 
     function handleImageSubmit(event:any){ 
         const imageFile = event.target.files[0];
@@ -51,20 +59,21 @@ export default function Page(){
         }
     }
 
-    function DownKeyHandler(e: KeyboardEvent){
-        if(e.key === "Enter"){
+    function DownKeyHandler(event: React.KeyboardEvent<HTMLInputElement>){
+        if((event.key === 'Enter')){
             handleMessageSubmit();
+            event.preventDefault()
         }
     }
 
     return <div className="flex flex-col min-h-screen bg-background">
 
-        <header className="border-b border-neutral-600/50 top-0 sticky z-50">
+        <header className="border-b border-neutral-600/40 top-0 sticky z-50 bg-secondary-foreground">
             <div className="flex  justify-between py-3 px-10 w-full">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-lg">ROOM{">"}ID</h1>
                     <div className="flex gap-3 text-sm items-center">
-                        <p>fjsdklfjasdklfjasljfa_</p>
+                        <p>{localId}</p>
                         <Copy className="w-4 h-4 cursor-pointer text-neutral-400 " />
                     </div>
                 </div>
@@ -94,7 +103,7 @@ export default function Page(){
                             <div className="flex flex-col gap-1">
                                 <div className="inline-block px-3 md:px-2 py-2 rounded-md border transition-all duration-200 bg-cover border-b-primary/80 cursor-grab shadow-2xl text-shadow-sm text-shadow-primary/10 ring ring-white/10">
                                     {message.image && <div className="h-full w-full relative">
-                                        <Image width={500} height={500} alt="preview image" className="max-w-xs rounded ring-2 ring-primary/40  p-2" src={message.image} />
+                                        <Image width={500} height={500} alt="preview image" className="max-w-xs mb-2 rounded ring-2 ring-primary/40  p-2" src={message.image} />
                                     </div> }
                                     {message.text && <p className="wrap-break-word text-sm leading-normal tracking-tight text-neutral-400">{message.text}</p>}
                                 </div>
@@ -123,12 +132,14 @@ export default function Page(){
                 
                 <div className="flex items-center gap-3 md:px-7">
                     <span className="md:text-3xl text-2xl shrink-0 text-primary">{"<"}</span>
-                    <Input value={input} onChange={(e) => setInput(e.target.value)} type="text" placeholder="Type message..." className="px-4 py-6 rounded-md" />
+                    <Input onKeyDown={DownKeyHandler}  value={input} onChange={(e) => setInput(e.target.value)} type="text" placeholder="Type message..." className="px-4 py-6 rounded-md" />
                     <div className="flex shrink-0 gap-2">
                         <Input onChange={handleImageSubmit} className="py-6 w-10" type="file" />
-                        <Button onKeyDown={() => DownKeyHandler} disabled={input == ''} onClick={handleMessageSubmit} className="py-6" ><span className="md:block hidden"><Send /> </span> Send</Button>
+                        <Button disabled={input == ''} onClick={handleMessageSubmit} className="py-6" ><span className="md:block hidden"><Send /> </span> Send</Button>
                     </div>
                 </div>
         </div>
+        <div ref={messageRef}></div>
     </div>
 }
+
