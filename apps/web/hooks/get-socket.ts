@@ -9,7 +9,6 @@ export function useSocket(url: string){
             const ws = new WebSocket(url);
 
             ws.onopen = () => { 
-                console.log("WebSocket connected");
                 setConnect(true);
             }
 

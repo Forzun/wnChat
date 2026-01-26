@@ -1,26 +1,64 @@
 "use client"
 
 import { useStorage } from "@/hooks/get-StorageId";
+import { useSocket } from "@/hooks/get-socket";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Copy, Send, Trash, X } from "lucide-react"
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react"
+import { useParams } from "next/navigation";
+import { useEffect, useId, useRef, useState } from "react"
 
 interface Message { 
     text: string, 
     image?: string, 
     isOwn?: boolean, 
-    timestamp: Date;
+    timestamp?: Date;
 }
 
 export default function Page(){ 
     const [input , setInput] = useState('');
-    const [isActive , setIsActive] = useState(true);
     const [messages , setMessage] = useState<Message[]>([]);
-    const {localId} = useStorage();
+    const {userId} = useStorage();
     const [image ,setImage] = useState<string | null>(null)
     const messageRef = useRef<HTMLDivElement | null>(null);
+    const {socket , connect} = useSocket("ws://localhost:8080")
+    const params = useParams();
+
+    console.log("message object", messages)
+
+    useEffect(() => { 
+        
+        if(!socket || !connect){ 
+            return;
+        }
+        console.log(userId)
+    socket.send(JSON.stringify({ 
+            type:"join", 
+            payload:{ 
+                name: userId,
+                roomId: params.id
+            }
+        }))
+
+    }, [socket , connect , params.id , userId])
+
+    useEffect(() => {
+        if (!socket) return;
+      
+        socket.onmessage = (event) => {
+          console.log("data being received:", event.data);
+      
+          setMessage(prev => [...prev, {
+            text: event.data,
+          }]);
+        };
+      
+        return () => {
+          socket.onmessage = null;
+        };
+      }, [socket]);
+      
 
     const scrollToBottom = () => {
         messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -44,16 +82,12 @@ export default function Page(){
     }
 
     function handleMessageSubmit() { 
-        console.log("image length", image)
         if(input.trim() || image){
-
             setMessage(prevMessage => [...prevMessage , { 
                 text: input, 
                 timestamp: new Date(),
                 image: image || undefined
-            } ])
-
-            console.log("current message: value", image)
+            }])
             setImage(null);
             setInput('')
         }
@@ -73,7 +107,7 @@ export default function Page(){
                 <div className="flex flex-col gap-1">
                     <h1 className="text-lg">ROOM{">"}ID</h1>
                     <div className="flex gap-3 text-sm items-center">
-                        <p>{localId}</p>
+                        <p>{userId}</p>
                         <Copy className="w-4 h-4 cursor-pointer text-neutral-400 " />
                     </div>
                 </div>
@@ -82,7 +116,7 @@ export default function Page(){
                     <p>10:00</p>
                 </div>
                 <div className="flex flex-col items-center">
-                    <div className="py-3 flex gap-2 items-center justify-center px-6 rounded group cursor-pointer border bg-primary">
+                    <div className="py-3 flex gap-2 items-center justify-center px-6 rounded group cursor-pointer border bg-primary/70">
                         <Trash className="scale-80 group-hover:animate-[shake_0.55s_ease-in-out_infinite]" /> 
                         <p className="group-hover:text-neutral-300 text-secondary transition-all duration-300 ease-in-out ">Destory</p>
                     </div>
@@ -108,11 +142,11 @@ export default function Page(){
                                     {message.text && <p className="wrap-break-word text-sm leading-normal tracking-tight text-neutral-400">{message.text}</p>}
                                 </div>
                                 <span className="text-xs text-muted-foreground ml-2">
-                                    {message.timestamp.toLocaleTimeString('en-US', {
+                                    {/* {message.timestamp.toLocaleTimeString('en-US', {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: true,
-                                    })}
+                                    })} */}10:30
                                 </span>
                             </div>
                         </div> 
@@ -126,7 +160,7 @@ export default function Page(){
                 <div className="flex-1 flex flex-col md:px-11 px-4">
                     {image ? <div className="h-full w-fit relative" >
                         <Image width={500} height={500} alt="preview image" className="max-w-xs rounded ring-2 ring-primary/40  p-2" src={image} /> 
-                        <button className="w-5 h-5 bg-primary rounded-full p-1 absolute top-3 right-3 flex items-center justify-center text-center"><X /></button>
+                        <button onClick={() => setImage(null)} className="w-5 h-5 bg-primary rounded-full p-1 absolute top-3 right-3 flex items-center justify-center text-center"><X /></button>
                     </div>: ""}
                 </div>
                 

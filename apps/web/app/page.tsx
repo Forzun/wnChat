@@ -1,6 +1,5 @@
 "use client";
 import PopToggle from "@/components/custom/pop-toggle";
-import { useSocket } from "@/hooks/get-socket";
 import { Input } from "@workspace/ui/components/input";
 import { nanoid } from "nanoid";
 import React, { useEffect, useRef, useState } from "react";
@@ -14,8 +13,6 @@ function generateUserName(value: number) {
 }
 
 export default function Page() {
-  const { socket } = useSocket("ws://localhost:8080");
-  const [message, setMessage] = useState([""]);
   const roomIdRef = useRef<HTMLInputElement | null>(null)
   const [userId, setUserId] = useState<string | null>(null);
   const [isDisable , setIsDisable] = useState(false)
@@ -32,27 +29,17 @@ export default function Page() {
     }
   }, [userId]);
 
-  useEffect(() => {
-    if (!socket) return;
+  // function handleSendMessage() {
+  //   console.log("click ");
+  //   const parseMessage = JSON.stringify({
+  //     type: "chat",
+  //     payload: {
+  //       message: "hi there",
+  //     },
+  //   });
+  //   socket?.send(parseMessage);
+  // }
 
-    socket.onmessage = (event) => {
-      console.log("data: ", event.data);
-      setMessage((m) => [...m, event.data]);
-    };
-  }, [socket]);
-
-  function handleSendMessage() {
-    console.log("click ");
-    const parseMessage = JSON.stringify({
-      type: "chat",
-      payload: {
-        message: "hi there",
-      },
-    });
-    socket?.send(parseMessage);
-  }
-
-  console.log("all user message: ", message);
 
   return (
     <div className="max-w-6xl flex items-center justify-center w-full mx-auto h-full min-h-screen">
@@ -63,7 +50,7 @@ export default function Page() {
                   <Input onChange={(e) => {
                       setIsDisable(String(e.target.value).length > 0)
                   }} ref={roomIdRef} className="rounded-md" type="text" placeholder="Enter Id Here"></Input>
-                  <PopToggle disable={!isDisable} socket={socket} userId={userId} roomIdRef={roomIdRef} />
+                  <PopToggle disable={!isDisable} userId={userId} roomIdRef={roomIdRef} />
               </div>
          </div>
     </div>

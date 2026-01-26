@@ -32,7 +32,7 @@ const themeValues: ThemeValuesType[] = [
   }
 ]
 
-export default function PopToggle({socket , userId , roomIdRef , disable}: {on?: boolean , userId: string | null , socket: WebSocket | null , roomIdRef: React.RefObject<HTMLInputElement | null> , disable?: boolean}) {
+export default function PopToggle({socket , userId , roomIdRef , disable}: {on?: boolean , userId: string | null , socket?: WebSocket | null , roomIdRef: React.RefObject<HTMLInputElement | null> , disable?: boolean}) {
   const router = useRouter()
 
     if(userId == null){
@@ -59,13 +59,13 @@ export default function PopToggle({socket , userId , roomIdRef , disable}: {on?:
             <AlertDialogAction asChild>
               <Button onClick={() => {
                 const roomId = roomIdRef.current?.value;
-                socket?.send(JSON.stringify({ 
-                  type:"join", 
-                  payload: { 
-                    name: userId, 
-                    roomId: roomId
-                  }
-                }))
+                // socket?.send(JSON.stringify({ 
+                //   type:"join", 
+                //   payload: { 
+                //     name: userId, 
+                //     roomId: roomId
+                //   }
+                // }))
                 router.push(`room/${roomId}`)
               }} >{"{"}<span>Join</span>{"}"}</Button>
             </AlertDialogAction>

@@ -33,7 +33,7 @@ wss.on("connection", function connection(ws: WebSocket){
                     name: parsedMessage.payload.name, 
                     room: parsedMessage.payload.roomId
                 })
-                console.log(parsedMessage.payload.name  , "has join the room with room id", parsedMessage.payload.roomId)
+                console.log(parsedMessage.payload.name  , "has join the room with room id", parsedMessage.payload.roomId , parsedMessage.payload.name)
             }
 
             if(parsedMessage.type == "chat"){ 
