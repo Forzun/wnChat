@@ -7,13 +7,14 @@ import { Input } from "@workspace/ui/components/input";
 import { Copy, Send, Trash, X } from "lucide-react"
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface Message { 
-    text: string, 
+    message: string, 
     image?: string, 
     isOwn?: boolean, 
     timestamp?: Date;
+    name?: string;
 }
 
 export default function Page(){ 
@@ -28,11 +29,9 @@ export default function Page(){
     console.log("message object", messages)
 
     useEffect(() => { 
-        
         if(!socket || !connect){ 
             return;
         }
-        console.log(userId)
     socket.send(JSON.stringify({ 
             type:"join", 
             payload:{ 
@@ -47,11 +46,19 @@ export default function Page(){
         if (!socket) return;
       
         socket.onmessage = (event) => {
-          console.log("data being received:", event.data);
-      
-          setMessage(prev => [...prev, {
-            text: event.data,
-          }]);
+            const data = JSON.parse(event.data);
+
+            console.log("data being received:", data);
+          
+            setMessage(prev => [
+              ...prev,
+              {
+                message: data.message,
+                image: data.image ?? null,
+                name: data.name,
+              },
+            ]);
+
         };
       
         return () => {
@@ -83,11 +90,15 @@ export default function Page(){
 
     function handleMessageSubmit() { 
         if(input.trim() || image){
-            setMessage(prevMessage => [...prevMessage , { 
-                text: input, 
-                timestamp: new Date(),
-                image: image || undefined
-            }])
+
+            socket?.send(JSON.stringify({ 
+                type: "chat", 
+                payload:{ 
+                    message: input,
+                    image: image, 
+                    name: userId
+                }
+            }))
             setImage(null);
             setInput('')
         }
@@ -139,14 +150,15 @@ export default function Page(){
                                     {message.image && <div className="h-full w-full relative">
                                         <Image width={500} height={500} alt="preview image" className="max-w-xs mb-2 rounded ring-2 ring-primary/40  p-2" src={message.image} />
                                     </div> }
-                                    {message.text && <p className="wrap-break-word text-sm leading-normal tracking-tight text-neutral-400">{message.text}</p>}
+                                    {message.message && <p className="wrap-break-word text-sm leading-normal tracking-tight text-neutral-400">{message.message}</p>}
                                 </div>
                                 <span className="text-xs text-muted-foreground ml-2">
+                                    {message.name || "Nothing"}
                                     {/* {message.timestamp.toLocaleTimeString('en-US', {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: true,
-                                    })} */}10:30
+                                    })} */}
                                 </span>
                             </div>
                         </div> 

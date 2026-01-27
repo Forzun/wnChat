@@ -1,15 +1,22 @@
 {
-  "name": "@types",
+  "name": "@workspace/types",
   "version": "1.0.0",
   "main": "index.js",
+  "private": true,
   "scripts": {
-
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    ".": "./index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
-
+  "description": "",
+  "dependencies": {
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
+  }
 }
-

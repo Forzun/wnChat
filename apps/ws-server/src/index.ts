@@ -1,17 +1,12 @@
 import { WebSocket, WebSocketServer } from "ws";
+import type { Message } from "@workspace/types";
 
 const wss = new WebSocketServer({
     port:8080
 })
 
-interface User { 
-    socket: WebSocket, 
-    name: string, 
-    room:string | number
-}
-
 let userCount: number = 0; 
-let allSocket: User[] = [] 
+let allSocket: Message[] = [] 
 
 wss.on("connection", function connection(ws: WebSocket){ 
     console.log("user connect successfully")
@@ -23,10 +18,11 @@ wss.on("connection", function connection(ws: WebSocket){
                 ws.send("pong");
                 return;
             }
-
+            
             const parsedMessage = JSON.parse(rawMessage);
 
             if(parsedMessage.type == "join"){ 
+                userCount++;
                 console.log("user join successfully to the room")
                 allSocket.push({ 
                     socket: ws, 
@@ -49,9 +45,15 @@ wss.on("connection", function connection(ws: WebSocket){
                 console.log("all ther current user with room" , currentUserRoom)
 
                 for(let i = 0; i<allSocket.length; i++){
-                    if(allSocket[i]?.room == currentUserRoom){ 
-                        allSocket[i]?.socket.send(parsedMessage.payload.message)
-                        console.log("all the people with the same room id:", allSocket[i]?.room)
+                    if(allSocket[i]?.room == currentUserRoom){
+                        const data = { 
+                            message: parsedMessage.payload.message, 
+                            image: parsedMessage.payload.image,
+                            name: parsedMessage.payload.name                            
+                        }
+                        allSocket[i]?.socket.send(JSON.stringify(data))
+                        console.log("all the people with the same room id:", allSocket[i]?.room); 
+                        console.log("user count", userCount)
                     }
                 }
 

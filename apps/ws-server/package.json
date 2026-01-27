@@ -9,7 +9,8 @@
     "build": "bun build src/index.ts --outdir dist"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest", 
+    "@workspace/types": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5"
