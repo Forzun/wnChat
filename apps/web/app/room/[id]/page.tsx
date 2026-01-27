@@ -1,5 +1,6 @@
 "use client"
 
+import CountDownTimer from "@/components/count-down-timer";
 import { useStorage } from "@/hooks/get-StorageId";
 import { useSocket } from "@/hooks/get-socket";
 import { Button } from "@workspace/ui/components/button";
@@ -75,7 +76,9 @@ export default function Page(){
         scrollToBottom();
     }, [messages])
 
-    function handleImageSubmit(event:any){ 
+    function handleImageSubmit(event: React.ChangeEvent<HTMLInputElement>){
+        if(!event.target.files) return;
+
         const imageFile = event.target.files[0];
 
         if(imageFile){ 
@@ -111,6 +114,8 @@ export default function Page(){
         }
     }
 
+
+
     return <div className="flex flex-col min-h-screen bg-background">
 
         <header className="border-b border-neutral-600/40 top-0 sticky z-50 bg-secondary-foreground">
@@ -124,7 +129,7 @@ export default function Page(){
                 </div>
                 <div className="flex flex-col items-center">
                     <h1 className="">Self-Destruct</h1>
-                    <p>10:00</p>
+                    <CountDownTimer />
                 </div>
                 <div className="flex flex-col items-center">
                     <div className="py-3 flex gap-2 items-center justify-center px-6 rounded group cursor-pointer border bg-primary/70">
