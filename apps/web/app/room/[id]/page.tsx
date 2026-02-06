@@ -27,7 +27,6 @@ export default function Page(){
     const {socket , connect} = useSocket("ws://localhost:8080")
     const params = useParams();
 
-    console.log("message object", messages)
 
     useEffect(() => { 
         if(!socket || !connect){ 
@@ -113,7 +112,6 @@ export default function Page(){
             event.preventDefault()
         }
     }
-
 
 
     return <div className="flex flex-col min-h-screen bg-background">

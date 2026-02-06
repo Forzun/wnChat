@@ -29,17 +29,6 @@ export default function Page() {
     }
   }, [userId]);
 
-  // function handleSendMessage() {
-  //   console.log("click ");
-  //   const parseMessage = JSON.stringify({
-  //     type: "chat",
-  //     payload: {
-  //       message: "hi there",
-  //     },
-  //   });
-  //   socket?.send(parseMessage);
-  // }
-
 
   return (
     <div className="max-w-6xl flex items-center justify-center w-full mx-auto h-full min-h-screen">
