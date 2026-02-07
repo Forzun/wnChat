@@ -4,12 +4,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts", 
-    "start": "bun dist/index.js", 
+    "dev": "bun --watch src/index.ts",
+    "start": "bun dist/index.js",
     "build": "bun build src/index.ts --outdir dist"
   },
   "devDependencies": {
-    "@types/bun": "latest", 
+    "@types/bun": "latest",
     "@workspace/types": "workspace:*"
   },
   "peerDependencies": {
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@types/ws": "^8.18.1",
+    "redis": "^5.10.0",
     "ws": "^8.19.0"
   }
 }

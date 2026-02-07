@@ -19,13 +19,14 @@ interface Message {
 }
 
 export default function Page(){ 
-    const [input , setInput] = useState('');
+    const [input , setInput] = useState('')
     const [messages , setMessage] = useState<Message[]>([]);
     const {userId} = useStorage();
     const [image ,setImage] = useState<string | null>(null)
     const messageRef = useRef<HTMLDivElement | null>(null);
     const {socket , connect} = useSocket("ws://localhost:8080")
     const params = useParams();
+    const [remainintTimeRef , setRemainintTimeRef] = useState<number | null>();
 
 
     useEffect(() => { 
@@ -49,16 +50,23 @@ export default function Page(){
             const data = JSON.parse(event.data);
 
             console.log("data being received:", data);
-          
-            setMessage(prev => [
-              ...prev,
-              {
-                message: data.message,
-                image: data.image ?? null,
-                name: data.name,
-              },
-            ]);
+            
+            if (data.type === "room_state") {
+                const time = data.payload?.remainingTime;
+                setRemainintTimeRef(typeof time === 'number' ? time : time?.remainingTime ?? null);
+                return;
+            }
 
+            if (data.message != null || data.image != null) {
+                setMessage(prev => [
+                    ...prev,
+                    {
+                        message: data.message,
+                        image: data.image ?? null,
+                        name: data.name,
+                    },
+                ]);
+            }
         };
       
         return () => {
@@ -127,7 +135,11 @@ export default function Page(){
                 </div>
                 <div className="flex flex-col items-center">
                     <h1 className="">Self-Destruct</h1>
-                    <CountDownTimer />
+                    {remainintTimeRef !== null ? (
+                        <CountDownTimer remainingSecond={remainintTimeRef as number} />
+                    ) : (
+                        <p className="text-xl text-muted-foreground">—</p>
+                    )}
                 </div>
                 <div className="flex flex-col items-center">
                     <div className="py-3 flex gap-2 items-center justify-center px-6 rounded group cursor-pointer border bg-primary/70">

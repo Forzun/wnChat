@@ -1,5 +1,7 @@
-import { WebSocket, WebSocketServer } from "ws";
 import type { Message } from "@workspace/types";
+import { createClient } from "redis";
+import { WebSocket, WebSocketServer } from "ws";
+import { createRoom } from "./redis";
 
 const wss = new WebSocketServer({
     port:8080
@@ -11,7 +13,7 @@ let allSocket: Message[] = []
 wss.on("connection", function connection(ws: WebSocket){ 
     console.log("user connect successfully")
 
-    ws.on("message", function(data: Buffer | string) { 
+    ws.on("message", async function(data: Buffer | string) { 
         try {
             const rawMessage = data.toString();
             if (rawMessage === "ping") {
@@ -30,7 +32,21 @@ wss.on("connection", function connection(ws: WebSocket){
                     room: parsedMessage.payload.roomId
                 })
                 console.log(parsedMessage.payload.name  , "has join the room with room id", parsedMessage.payload.roomId , parsedMessage.payload.name)
+                const redisData = await createRoom(parsedMessage.payload.roomId , parsedMessage.payload.name)
+
+                console.log("redis data here:", redisData)
+
+                if(redisData){
+                ws.send(JSON.stringify({
+                    type: "room_state", 
+                    payload: { 
+                        roomId: parsedMessage.payload.room,
+                        remainingTime: redisData
+                    }
+                }))
             }
+        
+        }
 
             if(parsedMessage.type == "chat"){ 
 

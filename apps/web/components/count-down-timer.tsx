@@ -2,10 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function CountDownTimer({initialMinutes = 10}){
-    const initialSeconds = initialMinutes * 60; 
-    const [timeLeft , setTimeLeft] = useState(initialSeconds);
-    const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+export default function CountDownTimer({remainingSecond}: {remainingSecond: number}){
+    const [timeLeft , setTimeLeft] = useState(remainingSecond);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+    useEffect(() => {
+        setTimeLeft(remainingSecond);
+    }, [remainingSecond]);
 
     useEffect(() => { 
 
